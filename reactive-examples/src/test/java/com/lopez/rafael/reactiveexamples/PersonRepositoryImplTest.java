@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.List;
 
@@ -32,6 +33,10 @@ class PersonRepositoryImplTest {
     void getByIdSubscribe() {
         Mono<Person> personMono = personRepository.getById(1);
 
+        // This is how we can test reactive types
+        // Here we are only expecting one interaction - 1 Mono
+        StepVerifier.create(personMono).expectNextCount(1).verifyComplete();
+
         // subscribe essentially starts to listen, and can perform actions.
         // Usually nothing happens until subscribe.
         personMono.subscribe(person -> System.out.println(person.toString()));
@@ -40,6 +45,10 @@ class PersonRepositoryImplTest {
     @Test
     void getByIdSubscribeNotFound() {
         Mono<Person> personMono = personRepository.getById(9);
+
+        // If we were to do StepVerifier.create(personMono).expectNextCount(1).verifyComplete();
+        // it would fail because nothing is returned
+        StepVerifier.create(personMono).verifyComplete();
 
         // subscribe essentially starts to listen, and can perform actions.
         // Usually nothing happens until subscribe.
@@ -77,6 +86,8 @@ class PersonRepositoryImplTest {
     @Test
     void testFluxSubscribe() {
         Flux<Person> personFlux = personRepository.findAll();
+
+        StepVerifier.create(personFlux).expectNextCount(4).verifyComplete();
 
         personFlux.subscribe(person -> {
             System.out.println(person.toString());
