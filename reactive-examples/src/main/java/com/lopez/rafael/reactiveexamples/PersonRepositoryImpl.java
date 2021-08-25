@@ -13,7 +13,7 @@ public class PersonRepositoryImpl implements PersonRepository {
 
     @Override
     public Mono<Person> getById(Integer id) {
-        return Mono.just(michael);
+        return findAll().filter(person -> person.getId() == id).next();
     }
 
     @Override

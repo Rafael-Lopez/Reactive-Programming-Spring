@@ -38,6 +38,15 @@ class PersonRepositoryImplTest {
     }
 
     @Test
+    void getByIdSubscribeNotFound() {
+        Mono<Person> personMono = personRepository.getById(9);
+
+        // subscribe essentially starts to listen, and can perform actions.
+        // Usually nothing happens until subscribe.
+        personMono.subscribe(person -> System.out.println(person.toString()));
+    }
+
+    @Test
     void getByIdMapFunction() {
         Mono<Person> personMono = personRepository.getById(1);
 
