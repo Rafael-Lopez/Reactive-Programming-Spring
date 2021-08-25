@@ -1,8 +1,10 @@
 package com.lopez.rafael.netflux.controllers;
 
 import com.lopez.rafael.netflux.domain.Movie;
+import com.lopez.rafael.netflux.domain.MovieEvent;
 import com.lopez.rafael.netflux.services.MovieService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,5 +32,12 @@ public class MovieController {
     @GetMapping()
     public Flux<Movie> getAllMovies() {
         return movieService.getAllMovies();
+    }
+
+    // For an endpoint to successfully stream events, we have to follow the W3C specifications
+    // and designate its MIME type as text/event-stream
+    @GetMapping(value = "/{id}/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<MovieEvent> streamMovieEvents(@PathVariable String id) {
+        return movieService.streamMovieEvents(id);
     }
 }
