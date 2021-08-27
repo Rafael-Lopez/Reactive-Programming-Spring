@@ -1,7 +1,7 @@
 package com.lopez.rafael.reactivebeerclient.model;
 
 public enum BeerStyleEnum {
-    LARGER,
+    LAGER,
     PILSNER,
     STOUT,
     GOSE,
