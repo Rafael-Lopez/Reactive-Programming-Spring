@@ -3,17 +3,18 @@ package com.lopez.rafael.reactivebeerclient.client;
 import com.lopez.rafael.reactivebeerclient.config.WebClientConfig;
 import com.lopez.rafael.reactivebeerclient.model.BeerDto;
 import com.lopez.rafael.reactivebeerclient.model.BeerPagedList;
-import org.assertj.core.api.Assertions;
+import com.lopez.rafael.reactivebeerclient.model.BeerStyleEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class BeerClientImplTest {
     BeerClientImpl beerClient;
@@ -100,6 +101,17 @@ class BeerClientImplTest {
 
     @Test
     void createBeer() {
+        BeerDto beerDto = BeerDto.builder()
+                .beerName("Dogfishhead 90 Min IPA")
+                .beerStyle(BeerStyleEnum.IPA)
+                .upc("321446948")
+                .price(new BigDecimal("10.99"))
+                .build();
+
+        Mono<ResponseEntity<Void>> responseEntityMono = beerClient.createBeer(beerDto);
+
+        ResponseEntity responseEntity = responseEntityMono.block();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     }
 
     @Test
