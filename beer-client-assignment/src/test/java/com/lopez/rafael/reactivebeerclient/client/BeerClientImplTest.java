@@ -9,12 +9,14 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BeerClientImplTest {
     BeerClientImpl beerClient;
@@ -105,6 +107,39 @@ class BeerClientImplTest {
 
         ResponseEntity responseEntity = responseEntityMono.block();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    void deleteBeerByIdNotFound() {
+        Mono<ResponseEntity<Void>> responseEntityMono = beerClient.deleteBeerById(UUID.randomUUID());
+
+        // WebClient throws an exception if a 2xx response is not returned. Therefore, this way wouldn't work.
+//        ResponseEntity responseEntity = responseEntityMono.block();
+//        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+
+        // Instead, you can do this using assertThrows
+        assertThrows(WebClientResponseException.class, () -> {
+            ResponseEntity responseEntity = responseEntityMono.block();
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        });
+    }
+
+    // This is another way to handle the fact that the Spring WebClient throws an exception
+    // if a 2xx response is not returned. In this case, we handle the exception using onErrorResume.
+    @Test
+    void deleteBeerByIdHandleException() {
+        Mono<ResponseEntity<Void>> responseEntityMono = beerClient.deleteBeerById(UUID.randomUUID());
+
+        ResponseEntity responseEntity = responseEntityMono.onErrorResume(throwable -> {
+            if(throwable instanceof WebClientResponseException) {
+                WebClientResponseException exception = (WebClientResponseException)throwable;
+                return Mono.just(ResponseEntity.status(exception.getStatusCode()).build());
+            } else {
+                throw new RuntimeException(throwable);
+            }
+        }).block();
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
