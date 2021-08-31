@@ -14,6 +14,8 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -69,6 +71,31 @@ class BeerClientImplTest {
 
         assertThat(beerDto.getId()).isEqualTo(beerId);
         assertThat(beerDto.getQuantityOnHand()).isNull();
+    }
+
+    @Test
+    void functionalTestGetBeerById() throws InterruptedException {
+        AtomicReference<String> beerName = new AtomicReference();
+        // For testing concurrent application in a multithreaded environment
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        beerClient.listBeers(null, null, null, null, null)
+                .map(beerPagedList -> beerPagedList.getContent().get(0).getId())
+                .map(beerId -> beerClient.getBeerById(beerId, false))
+                .flatMap(mono -> mono)
+                .subscribe(beerDto -> {
+                    beerName.set(beerDto.getBeerName());
+                    // Decrements the count of the latch, releasing all waiting threads if the count reaches zero.
+                    countDownLatch.countDown();
+                });
+
+        // Causes the current thread to wait until the latch has counted down to zero
+        // If we don't await, the thread in which the test is running may finish before the thread
+        // in which the subscribe method is invoked. Which would result in beerName being null by
+        // the time we reach the assertion.
+        countDownLatch.await();
+
+        assertThat(beerName.get()).isNotNull();
     }
 
     @Test
