@@ -12,7 +12,7 @@ public interface BeerClient {
                                 String beerStyle, Boolean showInventoryOnHand);
     Mono<BeerDto> getBeerById(UUID id, Boolean showInventoryOnHand);
     Mono<BeerDto> getBeerByUpc(String upc);
-    Mono<ResponseEntity> deleteBeerById(UUID id);
+    Mono<ResponseEntity<Void>> deleteBeerById(UUID id);
     Mono<ResponseEntity<Void>> createBeer(BeerDto beerDto);
     Mono<ResponseEntity<Void>> updateBeer(UUID id, BeerDto beerDto);
 }
