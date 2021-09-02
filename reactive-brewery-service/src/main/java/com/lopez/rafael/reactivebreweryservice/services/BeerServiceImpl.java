@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.springframework.data.relational.core.query.Criteria.where;
@@ -83,13 +82,21 @@ public class BeerServiceImpl implements BeerService {
 
     @Override
     public Mono<BeerDto> updateBeer(Integer beerId, BeerDto beerDto) {
-        return beerRepository.findById(beerId).map(beer -> {
-            beer.setBeerName(beerDto.getBeerName());
-            beer.setBeerStyle(BeerStyleEnum.valueOf(beerDto.getBeerStyle()));
-            beer.setPrice(beerDto.getPrice());
-            beer.setUpc(beerDto.getUpc());
-            return beer;
-        }).flatMap(beerRepository::save)
+        return beerRepository.findById(beerId)
+                .defaultIfEmpty(Beer.builder().build())
+                .map(beer -> {
+                    beer.setBeerName(beerDto.getBeerName());
+                    beer.setBeerStyle(BeerStyleEnum.valueOf(beerDto.getBeerStyle()));
+                    beer.setPrice(beerDto.getPrice());
+                    beer.setUpc(beerDto.getUpc());
+                    return beer;
+                }).flatMap(updatedBeer -> {
+                    if (updatedBeer.getId() != null) {
+                        return beerRepository.save(updatedBeer);
+                    }
+
+                    return Mono.just(updatedBeer);
+                })
                 .map(beerMapper::beerToBeerDto);
     }
 
