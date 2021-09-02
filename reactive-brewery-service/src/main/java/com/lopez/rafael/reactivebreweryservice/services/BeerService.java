@@ -13,14 +13,9 @@ import java.util.UUID;
  */
 public interface BeerService {
     Mono<BeerPagedList> listBeers(String beerName, BeerStyleEnum beerStyle, PageRequest pageRequest, Boolean showInventoryOnHand);
-
     Mono<BeerDto> getById(Integer beerId, Boolean showInventoryOnHand);
-
-    BeerDto saveNewBeer(BeerDto beerDto);
-
+    Mono<BeerDto> saveNewBeer(BeerDto beerDto);
     BeerDto updateBeer(UUID beerId, BeerDto beerDto);
-
     Mono<BeerDto> getByUpc(String upc);
-
     void deleteBeerById(Integer beerId);
 }
