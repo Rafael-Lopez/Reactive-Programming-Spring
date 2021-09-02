@@ -1,5 +1,7 @@
 package com.lopez.rafael.reactivebreweryservice;
 
+import io.r2dbc.h2.H2ConnectionConfiguration;
+import io.r2dbc.h2.H2ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -26,5 +28,15 @@ public class ReactiveBreweryServiceApplication {
 		initializer.setDatabasePopulator(new ResourceDatabasePopulator(resource));
 
 		return initializer;
+	}
+
+	@Bean
+	public H2ConnectionFactory connectionFactory() {
+		return new H2ConnectionFactory(
+				H2ConnectionConfiguration.builder()
+						.url("mem:testdb;DB_CLOSE_DELAY=-1;")
+						.username("sa")
+						.build()
+		);
 	}
 }

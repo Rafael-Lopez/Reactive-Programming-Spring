@@ -4,6 +4,7 @@ import com.lopez.rafael.reactivebreweryservice.web.model.BeerDto;
 import com.lopez.rafael.reactivebreweryservice.web.model.BeerPagedList;
 import com.lopez.rafael.reactivebreweryservice.web.model.BeerStyleEnum;
 import org.springframework.data.domain.PageRequest;
+import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
@@ -13,7 +14,7 @@ import java.util.UUID;
 public interface BeerService {
     BeerPagedList listBeers(String beerName, BeerStyleEnum beerStyle, PageRequest pageRequest, Boolean showInventoryOnHand);
 
-    BeerDto getById(UUID beerId, Boolean showInventoryOnHand);
+    Mono<BeerDto> getById(Integer beerId, Boolean showInventoryOnHand);
 
     BeerDto saveNewBeer(BeerDto beerDto);
 
@@ -21,5 +22,5 @@ public interface BeerService {
 
     BeerDto getByUpc(String upc);
 
-    void deleteBeerById(UUID beerId);
+    void deleteBeerById(Integer beerId);
 }
