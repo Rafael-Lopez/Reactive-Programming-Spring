@@ -43,6 +43,7 @@ class BeerControllerTest {
     @Test
     void getBeerById() {
         Integer beerId = 1;
+        validBeer.setId(beerId);
 
         given(beerService.getById(any(), any())).willReturn(Mono.just(validBeer));
 
