@@ -1,6 +1,7 @@
 package com.lopez.rafael.reactivebreweryservice.web.functional;
 
 import com.lopez.rafael.reactivebreweryservice.services.BeerService;
+import com.lopez.rafael.reactivebreweryservice.web.model.BeerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -31,5 +32,16 @@ public class BeerHandlerV2 {
                 .flatMap(beerDto -> {
                     return ServerResponse.ok().bodyValue(beerDto);
                 }).switchIfEmpty(ServerResponse.notFound().build());
+    }
+
+    public Mono<ServerResponse> saveNewBeer(ServerRequest request) {
+        Mono<BeerDto> beerDtoMono = request.bodyToMono(BeerDto.class);
+
+        return beerService.saveNewBeerMono(beerDtoMono)
+                .flatMap(beerDto -> {
+                    return ServerResponse.ok()
+                            .header("location", BeerRouterConfiguration.BEER_V2_URL + "/" + beerDto.getId())
+                            .build();
+                });
     }
 }
