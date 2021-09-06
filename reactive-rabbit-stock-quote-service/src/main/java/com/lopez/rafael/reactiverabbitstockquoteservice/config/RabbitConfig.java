@@ -31,6 +31,6 @@ public class RabbitConfig {
 
     @Bean
     Sender sender(Mono<Connection> mono) {
-        return RabbitFlux.createSender()new SenderOptions().connectionMono(mono);
+        return RabbitFlux.createSender(new SenderOptions().connectionMono(mono));
     }
 }
